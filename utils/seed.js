@@ -1,5 +1,5 @@
 const connection = require('../config/connection');
-const { Thoughts, Users } = require('../models');
+const { Thought, User } = require('../models');
 // Import functions for seed data
 const { getRandomName, getRandomPost, } = require('./data');
 
@@ -22,19 +22,30 @@ connection.once('open', async () => {
 
     for (let i = 0; i < 20; i++) {
         const username = getRandomName(20);
-        const posts = getRandomPost(20);
+        const thoughtText = getRandomPost(20);
 
 
-        users.push({username});
-        thoughts.push({posts});
+        users.push({username, email: `${username}123@mail.com`});
+        thoughts.push({thoughtText});
 
     }
 
-    const userData = await Users.insertMany(users, thoughts);
+    const userData = await User.insertMany(users);
 
-    await Thoughts.insertOne({users: [...userData.map(({_id}) => _id)] });
+    for (let i = 0; i < userData.length; i++) {
+
+      const thoughtData = await Thought.create({thoughtText: thoughts[i].thoughtText, username: userData[i].username});
+      //thoughtdata reaction.push({})
+      userData[i].thoughts.push(thoughtData._id);
+
+      await userData[i].save()
+
+    }
+
+    // await Thought.insertOne({users: [...userData.map(({_id}) => _id)] });
 
     console.table(users);
+    console.table(userData);
     console.info('Seeding complete! 🌱');
     process.exit(0);
 

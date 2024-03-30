@@ -80,13 +80,13 @@ const getRandomName = () =>
   `${getRandomArrItem(usernames)}${getRandomArrItem(usernames)}`;
 
 //generates random words for posts
-const getRandomWord = () => `${words[genRandomArrItem(words)]}`;
+const getRandomWord = () => `${getRandomArrItem(words)}`;
 
 //generates a post
-const getRandomPost = (words) => {
+const getRandomPost = (length) => {
     let post = '';
-    for (let i = 0; i < words; i++) {
-      post += ` ${getRandomWord()}`;
+    for (let i = 0; i < length; i++) {
+      post += `${getRandomWord()}`;
     }
     return post;
   };

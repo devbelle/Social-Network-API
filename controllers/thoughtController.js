@@ -5,7 +5,7 @@ module.exports = {
     async getThoughts(req, res) {
         try {
             const thoughts = await Thought.find()
-            //.populate({ path: 'reactions', select: '-__v' });
+            .populate('reactions');
             res.json(thoughts);
         } catch (err) {
             res.status(500).json(err);
@@ -15,7 +15,7 @@ module.exports = {
     async getSingleThought(req, res) {
         try{
             const thought = await Thought.findOne({ _id: req.params.thoughtId })
-            //.populate({ path: 'reactions', select: '-__v' });
+            .populate('reactions');
 
             
 
@@ -36,15 +36,15 @@ module.exports = {
                 return res.status(404).json({ message: 'No thought with that Id!' });
             }
 
-            const userThought = await User.findOneAndUpdate(
-                { _id: req.body.userId },
-                { $addToSet: { thoughts: thought._id } },
-                { new: true }
-            );
+            // const userThought = await User.findOneAndUpdate(
+            //     { _id: req.body.userId },
+            //     { $addToSet: { thoughts: thought._id } },
+            //     { new: true }
+            // );
 
-            if(!userThought) {
-                return res.status(404).json({ message: 'No thought with that Id!' });
-            }
+            // if(!userThought) {
+            //     return res.status(404).json({ message: 'No thought with that Id!' });
+            // }
 
             res.json(thought)
         } catch (err) {
@@ -61,7 +61,7 @@ module.exports = {
                 res.status(404).json({message: 'No thought with that Id!'});
             }
             await User.deleteMany({ _id: { $in: thought.users } });
-            res.json({message: 'User and thoughts deleted!'})
+            res.json({message: 'Thoughts deleted!'})
         } catch (err) {
             res.status(500).json(err);
         }
@@ -75,7 +75,7 @@ module.exports = {
                 { runValidators: true, new: true }
             );
             if(!thought) {
-                res.status(404).json({message: 'No user with this Id!'})
+                res.status(404).json({message: 'No thought with this Id!'})
             }
             res.json(thought); 
         } catch (err) {
@@ -91,7 +91,7 @@ module.exports = {
                 { runValidators: true, new: true }
             )
             if(!reaction) {
-                res.status(404).json({message: 'No user with this Id!'})
+                res.status(404).json({message: 'No reaction with this Id!'})
             }
             res.json(reaction)
         } catch (err) {
@@ -103,7 +103,7 @@ module.exports = {
         try {
             const reaction = await Thought.findOneAndUpdate(
                 { _id: req.params.thoughtId },
-                { $pull: { Reaction: { ReactionId: req.params.reactionId } } },
+                { $pull: { Reaction: { _Id: req.params.reactionId } } },
                 { runValidators: true, new: true }
             )
             if(!reaction) {

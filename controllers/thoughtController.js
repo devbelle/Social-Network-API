@@ -1,23 +1,118 @@
-/// Use built in date method to get current date from activity 11
-//lastAccessed: { type: Date, default: Date.now },
+const { Thought, User } = require('../models');
 
-//update example in activity 14
-// app.put('/find-one-update/:genre', async (req, res) => {
-//     // TODO: Write a route that will find the first instance of a document that contains a name with the value equal to 'Kids'
-//     try {
-    
-//       const filter = {name: 'kids'}
-//       const update = {name: req.params.genre}
-  
-//       const result = await Genre.findOneAndUpdate(filter, update, {new: true});
-  
-//       res.status(200).json(result)
-//       console.log(`Updated: ${result}`);
-//     }
-//     catch (err) {
-//       console.log('Uh Oh, something went wrong');
-//       res.status(500).json({ message: 'something went wrong' });
-//     // Update that name with the value given from the URL param
-//     // Return the updated document
-//     }
-//   });
+module.exports = {
+
+    async getThoughts(req, res) {
+        try {
+            const thoughts = await Thought.find()
+            //.populate({ path: 'reactions', select: '-__v' });
+            res.json(thoughts);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async getSingleThought(req, res) {
+        try{
+            const thought = await Thought.findOne({ _id: req.params.thoughtId })
+            //.populate({ path: 'reactions', select: '-__v' });
+
+            
+
+            if (!thought) {
+                return res.status(404).json({ message: 'No thought with that Id!' });
+            }
+            res.json(thought);
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async createThought(req, res) {
+        try {
+            const thought = await Thought.create(req.body);
+
+            if (!thought) {
+                return res.status(404).json({ message: 'No thought with that Id!' });
+            }
+
+            const userThought = await User.findOneAndUpdate(
+                { _id: req.body.userId },
+                { $addToSet: { thoughts: thought._id } },
+                { new: true }
+            );
+
+            if(!userThought) {
+                return res.status(404).json({ message: 'No thought with that Id!' });
+            }
+
+            res.json(thought)
+        } catch (err) {
+            console.log(err);
+            return res.status(500).json(err);
+        }
+    },
+
+    async deleteThought(req, res) {
+        try{
+            const thought = await Thought.findOneAndDelete({_id: req.params.thoughtId});
+            
+            if(!thought) {
+                res.status(404).json({message: 'No thought with that Id!'});
+            }
+            await User.deleteMany({ _id: { $in: thought.users } });
+            res.json({message: 'User and thoughts deleted!'})
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async updateThought(req, res) {
+        try {
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtId },
+                { $set: req.body },
+                { runValidators: true, new: true }
+            );
+            if(!thought) {
+                res.status(404).json({message: 'No user with this Id!'})
+            }
+            res.json(thought); 
+        } catch (err) {
+            res.status(500).json(err);
+          }
+    },
+
+    async createReaction(req, res) {
+        try {
+            const reaction = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtId },
+                { $addToSet: { reactions: req.body } },
+                { runValidators: true, new: true }
+            )
+            if(!reaction) {
+                res.status(404).json({message: 'No user with this Id!'})
+            }
+            res.json(reaction)
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    },
+
+    async deleteReaction(req, res) {
+        try {
+            const reaction = await Thought.findOneAndUpdate(
+                { _id: req.params.thoughtId },
+                { $pull: { Reaction: { ReactionId: req.params.reactionId } } },
+                { runValidators: true, new: true }
+            )
+            if(!reaction) {
+                res.status(404).json({message: 'No user with this Id!'})
+            }
+            res.json(reaction)
+        } catch (err) {
+            res.status(500).json(err);
+        }
+    }
+
+}

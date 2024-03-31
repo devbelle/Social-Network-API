@@ -19,23 +19,26 @@ connection.once('open', async () => {
 
     const users = [];
     const thoughts = [];
+    
+
+    
 
     for (let i = 0; i < 20; i++) {
         const username = getRandomName(20);
         const thoughtText = getRandomPost(20);
-
+        
 
         users.push({username, email: `${username}123@mail.com`});
         thoughts.push({thoughtText});
 
     }
 
+
     const userData = await User.insertMany(users);
 
     for (let i = 0; i < userData.length; i++) {
 
       const thoughtData = await Thought.create({thoughtText: thoughts[i].thoughtText, username: userData[i].username});
-      //thoughtdata reaction.push({})
       userData[i].thoughts.push(thoughtData._id);
 
       await userData[i].save()

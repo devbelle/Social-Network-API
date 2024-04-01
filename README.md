@@ -11,7 +11,7 @@ To access, copy the repository in github, then use the git clone function in com
 
 Link below:
 
-https://devbelle-tech-blog-ea7c6d89a077.herokuapp.com/
+
 
 ![Screenshot](social-network-screenshot.png)
 

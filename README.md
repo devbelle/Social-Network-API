@@ -13,7 +13,8 @@ Link below:
 
 https://devbelle-tech-blog-ea7c6d89a077.herokuapp.com/
 
-Screenshot Screenshot
+![Screenshot](social-network-screenshot.png)
+
 
 ##Credits
 
